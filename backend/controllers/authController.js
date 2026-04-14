@@ -83,7 +83,7 @@ const updateLocation = async (req, res) => {
           coordinates: [longitude, latitude],
         },
       },
-      { new: true },
+      { returnDocument: "after" },
     ).select("-password");
 
     res.json(user);

@@ -17,7 +17,22 @@ const createRequest = async (req, res) => {
     });
 
     await request.populate("requester", "name phone");
-
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("emergency-created-server", {
+        requestId: request._id,
+        emergencyType,
+        description,
+        address,
+        latitude,
+        longitude,
+        requester: {
+          name: request.requester.name,
+          phone: request.requester.phone,
+        },
+        createdAt: request.createdAt,
+      });
+    }
     res.status(201).json(request);
   } catch (error) {
     console.error(error);
@@ -78,6 +93,13 @@ const updateRequestStatus = async (req, res) => {
 
     request.status = status;
     await request.save();
+    const io = req.app.get("io");
+    if (io) {
+      io.to(`emergency:${request._id}`).emit("emergency-status-changed", {
+        requestId: request._id,
+        status,
+      });
+    }
 
     res.json(request);
   } catch (error) {

@@ -5,7 +5,8 @@ npm-debug.log*
 .env
 .env.local
 .env.production
-
+frontend/.env
+frontend/.env.production
 
 dist/
 build/

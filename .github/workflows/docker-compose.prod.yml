@@ -4,15 +4,9 @@ services:
   mongo:
     image: mongo:7
     container_name: emergency_mongo
-
     restart: unless-stopped
-
-    ports:
-      - "27017:27017"
-
     volumes:
       - mongo_data:/data/db
-
     networks:
       - emergency_network
 
@@ -20,52 +14,34 @@ services:
     image: redis:7-alpine
     container_name: emergency_redis
     restart: unless-stopped
-
-    ports:
-      - "6379:6379"
-
+    command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
-
-    command: redis-server --appendonly yes
-
     networks:
       - emergency_network
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    image: ${DOCKERHUB_USERNAME:-local}/emergency-backend:latest
+    image: ${DOCKERHUB_USERNAME}/emergency-backend:latest
     container_name: emergency_backend
     restart: unless-stopped
-
     ports:
       - "5000:5000"
-
     env_file:
       - .env.docker
-
     depends_on:
       - mongo
       - redis
-
     networks:
       - emergency_network
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    image: ${DOCKERHUB_USERNAME:-local}/emergency-frontend:latest
+    image: ${DOCKERHUB_USERNAME}/emergency-frontend:latest
     container_name: emergency_frontend
     restart: unless-stopped
-
     ports:
-      - "5173:80"
+      - "80:80"
     depends_on:
       - backend
-
     networks:
       - emergency_network
 
